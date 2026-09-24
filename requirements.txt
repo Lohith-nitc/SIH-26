@@ -1,0 +1,4 @@
+# Cloud server dependencies. MOCK_ASR needs nothing else.
+paho-mqtt>=2.0,<3.0
+# For REAL_ASR, add the engine you choose (and numpy if your engine needs it),
+# e.g. an openai-whisper, faster-whisper, whisper.cpp binding, or vosk package.

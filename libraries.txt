@@ -1,0 +1,6 @@
+# Wokwi Library List
+# Arduino Library Manager names, one per line. Both are used by sketch.ino:
+#   PubSubClient -> MQTT client      (#include <PubSubClient.h>)
+#   ArduinoJson  -> JSON build/parse (#include <ArduinoJson.h>, v7 API: JsonDocument)
+PubSubClient
+ArduinoJson
