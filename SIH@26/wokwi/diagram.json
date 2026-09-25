@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "author": "SIH 2026 — edge voice activator",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-s3-devkitc-1", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+
+    { "type": "wokwi-resistor", "id": "r_wifi", "top": 30, "left": 200, "attrs": { "value": "220" } },
+    { "type": "wokwi-led", "id": "led_wifi", "top": 0, "left": 300, "attrs": { "color": "green" } },
+
+    { "type": "wokwi-resistor", "id": "r_kws", "top": 100, "left": 200, "attrs": { "value": "220" } },
+    { "type": "wokwi-led", "id": "led_kws", "top": 70, "left": 300, "attrs": { "color": "yellow" } },
+
+    { "type": "wokwi-resistor", "id": "r_mqtt", "top": 170, "left": 200, "attrs": { "value": "220" } },
+    { "type": "wokwi-led", "id": "led_mqtt", "top": 140, "left": 300, "attrs": { "color": "blue" } },
+
+    { "type": "wokwi-resistor", "id": "r_light", "top": 240, "left": 200, "attrs": { "value": "220" } },
+    { "type": "wokwi-led", "id": "led_light", "top": 210, "left": 300, "attrs": { "color": "white" } },
+
+    { "type": "wokwi-pushbutton", "id": "btn_inject", "top": 300, "left": 200, "attrs": { "color": "red" } }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+
+    [ "esp:4", "r_wifi:1", "green", [] ],
+    [ "r_wifi:2", "led_wifi:A", "green", [] ],
+    [ "led_wifi:C", "esp:GND.1", "black", [] ],
+
+    [ "esp:5", "r_kws:1", "gold", [] ],
+    [ "r_kws:2", "led_kws:A", "gold", [] ],
+    [ "led_kws:C", "esp:GND.1", "black", [] ],
+
+    [ "esp:6", "r_mqtt:1", "blue", [] ],
+    [ "r_mqtt:2", "led_mqtt:A", "blue", [] ],
+    [ "led_mqtt:C", "esp:GND.1", "black", [] ],
+
+    [ "esp:7", "r_light:1", "white", [] ],
+    [ "r_light:2", "led_light:A", "white", [] ],
+    [ "led_light:C", "esp:GND.1", "black", [] ],
+
+    [ "esp:14", "btn_inject:1.l", "red", [] ],
+    [ "btn_inject:2.l", "esp:GND.1", "black", [] ]
+  ],
+  "dependencies": {}
+}
