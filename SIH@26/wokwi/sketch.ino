@@ -252,8 +252,8 @@ class SimulatedAudioSource : public AudioSource {
 
   bool begin(uint32_t sampleRateHz) override {
     rate_ = sampleRateHz;
-    lastUs_ = micros();
-    rateAccum_ = 0; backlog_ = 0; index_ = 0; overruns_ = 0;
+    index_ = 0;
+    overruns_ = 0;
     injectRequested_ = false; hasInject_ = false; injectStart_ = 0;
     lastSeg_ = SEG_UNSET;
     Serial.printf("[MIC-SIM] SimulatedAudioSource started: %lu Hz, 16-bit mono, %u-sample blocks\n",
@@ -263,31 +263,21 @@ class SimulatedAudioSource : public AudioSource {
   }
 
   size_t read(int16_t* dst, size_t maxSamples) override {
-    // Advance the simulated "DMA" by the elapsed time.
-    const uint32_t now = micros();
-    const uint32_t elapsedUs = now - lastUs_;  // wrap-safe
-    lastUs_ = now;
-    rateAccum_ += (uint64_t)elapsedUs * rate_;
-    backlog_ += rateAccum_ / 1000000ULL;
-    rateAccum_ %= 1000000ULL;
+    if (maxSamples == 0) return 0;
 
-    const uint64_t maxBacklog = (uint64_t)AUDIO_BLOCK_SAMPLES * AUDIO_MAX_BACKLOG_BLOCKS;
-    if (backlog_ > maxBacklog) {           // reader was too slow: drop oldest audio
-      index_ += backlog_ - maxBacklog;     // timeline keeps moving, like a real mic
-      backlog_ = maxBacklog;
-      overruns_++;
-    }
-
-    if (injectRequested_) {                // button: start pattern at the next sample
+    // Wokwi simulation mode: generate samples immediately instead of
+    // emulating real-time DMA. This prevents Wokwi timing from causing
+    // artificial audio buffer overruns while preserving the exact sample
+    // timeline used by the KWS test.
+    if (injectRequested_) {
       injectRequested_ = false;
       hasInject_ = true;
       injectStart_ = index_;
     }
 
-    size_t n = (backlog_ < (uint64_t)maxSamples) ? (size_t)backlog_ : maxSamples;
+    const size_t n = maxSamples;
     for (size_t i = 0; i < n; ++i) dst[i] = sampleAt(index_ + i);
     index_ += n;
-    backlog_ -= n;
     return n;
   }
 
@@ -355,8 +345,7 @@ class SimulatedAudioSource : public AudioSource {
   }
 
   uint32_t rate_ = SAMPLE_RATE_HZ;
-  uint32_t lastUs_ = 0;
-  uint64_t rateAccum_ = 0, backlog_ = 0, index_ = 0, injectStart_ = 0;
+  uint64_t index_ = 0, injectStart_ = 0;
   uint32_t overruns_ = 0;
   bool injectRequested_ = false, hasInject_ = false;
   Segment lastSeg_ = SEG_UNSET;
@@ -1058,6 +1047,7 @@ void loop() {
 
     case COMMAND_RECEIVED:
       if (now - stateEnteredAt >= COMMAND_DISPLAY_MS) setState(LISTENING);
+      
       break;
   }
 }
